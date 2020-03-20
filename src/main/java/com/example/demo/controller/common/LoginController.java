@@ -16,32 +16,33 @@ import com.example.demo.service.UsersService;
 
 @Controller
 public class LoginController {
+
 	@Autowired
 	private UsersService usersService;
 
 	@RequestMapping(value = { "/", "/index" }, method = RequestMethod.GET)
 	public String home() {
-		return "index";
+		return IConstant.RETURN_INDEX;
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(Model model) {
 		Users userLogin = new Users();
 		model.addAttribute("userLogin", userLogin);
-		return "common/login/login";
+		return IConstant.RETURN_LOGIN_FORM;
 	}
 
 	@RequestMapping(value = "/doLogin", method = RequestMethod.POST)
 	public String checkLogin(@ModelAttribute("userLogin") Users userLogin, Model model, HttpSession session) {
 		Users userLog = usersService.findUserToLogin(userLogin.getEmail(), userLogin.getPassword());
-		if ((userLog != null) && (userLog.getActive() == IConstant.STATUS_ACCOUNT)) {
+		if ((userLog != null) && (userLog.getActive() == IConstant.ACTIVE_ACCOUNT)) {
 			session.setAttribute("userLogName", userLog.getEmail());
 			session.setAttribute("userRole", userLog.getRole());
-			return "redirect:/index";
+			return IConstant.REDIRECT_INDEX;
 
 		} else {
-			model.addAttribute("messageLogin", "Wrong email or password");
-			return "common/login/login";
+			model.addAttribute("messageLogin", IConstant.LOGIN_ERROR);
+			return IConstant.RETURN_LOGIN_FORM;
 		}
 	}
 
@@ -50,7 +51,7 @@ public class LoginController {
 		session = rq.getSession();
 		session.removeAttribute("userLogName");
 		session.removeAttribute("userRole");
-		return "redirect:/index";
+		return IConstant.REDIRECT_INDEX;
 	}
 
 }

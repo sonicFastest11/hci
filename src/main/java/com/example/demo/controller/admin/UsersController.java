@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.demo.constant.IConstant;
 import com.example.demo.entity.Users;
 import com.example.demo.service.UsersService;
 
@@ -27,7 +28,7 @@ public class UsersController {
 
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 	public String welcome() {
-		return "admin/home/home";
+		return IConstant.ADMIN_HOME;
 	}
 
 	@RequestMapping(value = "/listAllUsers", method = RequestMethod.GET)
@@ -35,7 +36,7 @@ public class UsersController {
 		List<Users> listUsers = usersService.listAllUsers();
 		model.addAttribute("listUsers", listUsers);
 
-		return "admin/users/listUsers";
+		return IConstant.LIST_USERS;
 	}
 
 	@RequestMapping(value = "/newUsers", method = RequestMethod.GET)
@@ -43,27 +44,27 @@ public class UsersController {
 		Users user = new Users();
 		model.addAttribute("user", user);
 
-		return "admin/users/newUsers";
+		return IConstant.ADMIN_NEW_USER_FORM;
 	}
 
 	// Register to save user
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	public String saveUser(@ModelAttribute("user") @Valid Users user, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			return "admin/users/newUsers";
+			return IConstant.ADMIN_NEW_USER_FORM;
 		} else {
 			if (!user.getPassword().equals(user.getConfirmPassword())) {
-				model.addAttribute("notmatch", "Password is not match");
-				return "admin/users/newUsers";
+				model.addAttribute("notmatch", IConstant.PASSWORD_NOT_MATCH);
+				return IConstant.ADMIN_NEW_USER_FORM;
 			}
 			if (usersService.CkAccount(user.getEmail()) != null) {
-				model.addAttribute("emailExist", "Email is existed");
-				return "admin/users/newUsers";
+				model.addAttribute("emailExist", IConstant.EXISTED_EMAIL);
+				return IConstant.ADMIN_NEW_USER_FORM;
 			} else {
-				user.setActive(1);
 				user.setRole("4");
+				user.setActive(IConstant.ACTIVE_ACCOUNT);
 				usersService.save(user);
-				return "redirect:/listAllUsers";
+				return IConstant.REDIRECT_LIST_USERS;
 			}
 		}
 
@@ -75,18 +76,18 @@ public class UsersController {
 		Users user = usersService.get(id);
 		model.addAttribute("user", user);
 
-		return "admin/users/editUsers";
+		return IConstant.ADMIN_EDIT_USER_FORM;
 	}
 
 	@RequestMapping(value = "/saveUsers", method = RequestMethod.POST)
 	public String save(@ModelAttribute("user") @Valid Users user, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
-			return "admin/users/editUsers";
+			return IConstant.ADMIN_EDIT_USER_FORM;
 		} else {
 
 			usersService.save(user);
 
-			return "redirect:/listAllUsers";
+			return IConstant.REDIRECT_LIST_USERS;
 		}
 	}
 
@@ -95,17 +96,17 @@ public class UsersController {
 	public String delete(@PathVariable("id") long id) {
 		usersService.delete(id);
 
-		return "redirect:/listAllUsers";
+		return IConstant.REDIRECT_LIST_USERS;
 	}
 
 	// Lock User
 	@RequestMapping(value = "/lockUser/{id}", method = RequestMethod.GET)
 	public String lockAccount(@PathVariable("id") long id) {
 		Users user = usersService.get(id);
-		user.setActive(0);
+		user.setActive(IConstant.DEACTIVE_ACCOUNT);
 		usersService.save(user);
 
-		return "redirect:/listAllUsers";
+		return IConstant.REDIRECT_LIST_USERS;
 
 	}
 
